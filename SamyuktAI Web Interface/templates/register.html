@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SamyuktAI | Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+  </head>
+  <body>
+
+  <canvas id="particle-bg"></canvas>
+
+  <div class="top-actions"><button class="theme-toggle" id="themeToggle">🌙</button></div>
+  
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h2>Register</h2>
+      <p>Create your account</p>
+
+      <form method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm" placeholder="Confirm Password" required>
+        <button class="auth-btn" type="submit">Register</button>
+      </form>
+
+      <div class="auth-links">
+        Already have an account? <a href="/login">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // THEME TOGGLE
+    themeToggle.onclick = () => {
+      const isDark = document.body.dataset.theme === "dark";
+      document.body.dataset.theme = isDark ? "light" : "dark";
+      themeToggle.textContent = isDark ? "🌙" : "☀️";
+    };
+
+    const canvas = document.getElementById('particle-bg');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 100;
+
+    function getParticleColor() {
+      return document.body.dataset.theme === 'dark'
+        ? 'rgba(255, 255, 255, 0.5)'  // Light particles for dark theme
+        : 'rgba(6, 78, 59, 0.25)';       // Dark particles for light theme
+    }
+
+    // Create particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 3 + 1,
+        dx: (Math.random() - 0.5) * 1.5,
+        dy: (Math.random() - 0.5) * 1.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      const particleColor = getParticleColor();
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        // Bounce off edges
+        if (p.x < 0 || p.x > width) p.dx *= -1;
+        if (p.y < 0 || p.y > height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particleColor; // For dark theme adjust dynamically if needed
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SamyuktAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+  <canvas id="particle-bg"></canvas>
+
+  <div class="app">
+    
+    <main class="main">
+
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div class="model-selector">
+          <button id="modelBtn">
+            <span id="modelText">Medical</span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div class="dropdown" id="dropdown" hidden>
+            <div data-model="medical" class="active">Medical</div>
+            <div data-model="legal">Legal</div>
+          </div>
+        </div>
+
+        <div class="top-actions"><button class="theme-toggle" id="themeToggle">🌙</button>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </div>
+
+      <!-- HERO -->
+      <div class="hero-wrapper" id="heroWrapper">
+        <div class="hero">
+          <h1 id="greeting">Good Afternoon, User</h1>
+          <p>What’s on your mind?</p>
+        </div>
+
+        <!-- INPUT BELOW HERO -->
+        <div class="input-card" id="inputBar">
+          <input id="chatInput" placeholder="Ask a question..." />
+          <button class="send-btn" id="sendBtn">Send</button>
+        </div>
+
+        <div class="suggestions" id="suggestions"></div>
+
+      </div>
+
+      <!-- CHAT MESSAGES -->
+      <div id="chatWindow" class="chat-window"></div>
+
+    </main>
+  </div>
+
+  <div class="disclaimer">
+    SamyuktAI provides informational responses only and does not constitute
+    professional medical or legal advice. Always consult a qualified professional.
+  </div>
+
+  <script>
+    const API_URL = "/chat";
+
+    const modelBtn = document.getElementById("modelBtn");
+    const dropdown = document.getElementById("dropdown");
+    const modelText = document.getElementById("modelText");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const chatWindow = document.getElementById("chatWindow");
+    const themeToggle = document.getElementById("themeToggle");
+    const heroWrapper = document.getElementById("heroWrapper");
+    const suggestions = document.getElementById("suggestions");
+    const inputBar = document.getElementById("inputBar");
+    let currentModel = modelText.textContent.trim().toLowerCase();
+    const SUGGESTIONS = {
+      medical: [
+        "Symptoms of high blood pressure?",
+        "What is Leukemia?",
+        "Causes of diabetes?",
+        "Side effects of paracetamol"
+      ],
+      legal: [
+        "What is IPC Section 302?",
+        "Punishment for theft in India?",
+        "What is anticipatory bail?",
+        "Difference between FIR and complaint"
+      ]
+    };
+
+    // Toggle dropdown on button click
+    modelBtn.onclick = () => {
+      dropdown.hidden = !dropdown.hidden;
+    };
+
+    function renderSuggestions(model) {
+      suggestions.innerHTML = "";
+
+      (SUGGESTIONS[model] || []).forEach(text => {
+        const card = document.createElement("div");
+        card.className = "suggestion";
+        card.textContent = text;
+        card.onclick = () => fillInput(text);
+        suggestions.appendChild(card);
+      });
+    }
+
+
+    // UTILITY: temporary toast message
+    function showMessage(msg) {
+      const toast = document.createElement("div");
+      toast.innerText = msg;
+      toast.style.position = "fixed";
+      toast.style.top = "100px";
+      toast.style.left = "50%";
+      toast.style.transform = "translateX(-50%)";
+      toast.style.padding = "12px 20px";
+      toast.style.background = "var(--text-primary)";
+      toast.style.color = "var(--bg-card)";
+      toast.style.borderRadius = "8px";
+      toast.style.zIndex = 9999;
+      toast.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
+      toast.style.opacity = 0;
+      toast.style.transition = "opacity 0.3s ease";
+      document.body.appendChild(toast);
+
+      requestAnimationFrame(() => toast.style.opacity = 1);
+      setTimeout(() => {
+        toast.style.opacity = 0;
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+
+    function syncModelUI(model) {
+      dropdown.querySelectorAll("div").forEach(d => {
+        d.classList.toggle("active", d.dataset.model === model);
+      });
+
+      modelText.textContent = model.charAt(0).toUpperCase() + model.slice(1);
+      currentModel = model;
+
+      renderSuggestions(model);
+    }
+
+
+    // MODEL SWITCHING LOGIC
+    dropdown.querySelectorAll("div").forEach(item => {
+      item.onclick = () => {
+        const selectedModel = item.dataset.model;
+
+        if (selectedModel === currentModel) {
+          showMessage("Already using this model!");
+          dropdown.hidden = true;
+          return;
+        }
+
+        if (chatWindow.children.length > 0) {
+          const confirmSwitch = confirm(
+            "You have an ongoing chat. Are you sure you want to switch models?"
+          );
+          if (!confirmSwitch) {
+            dropdown.hidden = true;
+            return;
+          }
+        }
+
+        // Reset UI
+        document.body.classList.remove("chat-active");
+        chatWindow.innerHTML = "";
+        chatInput.value = "";
+        heroWrapper.style.display = "block";
+
+        heroWrapper.insertBefore(inputBar, suggestions);
+        inputBar.style.position = "static";
+        inputBar.style.marginTop = "24px";
+
+        syncModelUI(selectedModel);
+
+        dropdown.hidden = true;
+      };
+    });
+
+    // THEME TOGGLE
+    themeToggle.onclick = () => {
+      const isDark = document.body.dataset.theme === "dark";
+      document.body.dataset.theme = isDark ? "light" : "dark";
+      themeToggle.textContent = isDark ? "🌙" : "☀️";
+    };
+
+    function fillInput(text) {
+      chatInput.value = text;
+    }
+
+    // CHAT LOGIC
+    async function handleChat() {
+      const query = chatInput.value.trim();
+      if (!query) return;
+
+      // FIRST MESSAGE: hide hero & suggestions, move input to chat bottom
+      if (!document.body.classList.contains("chat-active")) {
+        document.body.classList.add("chat-active");
+
+        // Hide hero and suggestions
+        document.getElementById("heroWrapper").style.display = "none";
+
+        // Move inputCard below chat window
+        const main = document.querySelector(".main");
+        main.appendChild(inputBar);  // moves the input-card to bottom
+        inputBar.style.position = "sticky";
+        inputBar.style.bottom = "50px";
+        inputBar.style.marginTop = "auto";
+      }
+
+      // Add user message
+      addMessage(query, "user-msg");
+      chatInput.value = "";
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
+      const loadingId = addMessage("SamyuktAI is thinking...", "bot-msg");
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            prompt: query,
+            model_type: modelText.textContent.toLowerCase()
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server error: " + res.status);
+        }
+
+        const data = await res.json();
+        let cleanResponse = (data.response || "No response received.")
+        .replace(/\r\n/g, "\n")
+        .replace(/\n+/g, "\n")
+        .replace(/[^\S\n]+/g, " ")  // normalize spaces but keep newlines
+        .trim();
+
+        let htmlOutput = marked.parse(cleanResponse);
+        
+        console.log("RAW:\n", data.response);
+        console.log("CLEAN:\n", cleanResponse);
+        console.log("HTML:\n", htmlOutput);
+
+        document.getElementById(loadingId).innerHTML = htmlOutput;
+
+      } catch (err) {
+        document.getElementById(loadingId).innerText = err.message;
+      } finally {
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+        chatWindow.scrollTop = chatWindow.scrollHeight; // ensure scroll at bottom
+      }
+    }
+
+    function addMessage(text, cls) {
+      const div = document.createElement("div");
+      div.className = cls;
+
+      const id = "msg-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+      div.id = id;
+
+      if (cls === "bot-msg") {
+        div.innerHTML = marked.parse(text);
+      } else {
+        div.textContent = text;  // USER should NOT use marked
+      }
+
+      chatWindow.appendChild(div);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      return id;
+    }
+
+
+    sendBtn.onclick = handleChat;
+    chatInput.addEventListener("keypress", e => e.key === "Enter" && handleChat());
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      let greeting;
+
+      if (hour < 12) {
+        greeting = "Good Morning";
+      } else if (hour < 17) {
+        greeting = "Good Afternoon";
+      } else {
+        greeting = "Good Evening";
+      }
+
+      const LOGGED_IN_USER = "{{ username }}"; 
+      const username = LOGGED_IN_USER || "User";
+
+      document.getElementById("greeting").textContent =`${greeting}, ${username}`;
+    }
+
+    setInterval(updateGreeting, 60000);
+
+    updateGreeting();
+
+    const canvas = document.getElementById('particle-bg');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 100;
+
+    function getParticleColor() {
+      return document.body.dataset.theme === 'dark'
+        ? 'rgba(255, 255, 255, 0.5)'  // Light particles for dark theme
+        : 'rgba(6, 78, 59, 0.25)';       // Dark particles for light theme
+    }
+
+    // Create particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 3 + 1,
+        dx: (Math.random() - 0.5) * 1.5,
+        dy: (Math.random() - 0.5) * 1.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      const particleColor = getParticleColor();
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        // Bounce off edges
+        if (p.x < 0 || p.x > width) p.dx *= -1;
+        if (p.y < 0 || p.y > height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particleColor; // For dark theme adjust dynamically if needed
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+  animate();
+
+  // Resize canvas on window resize
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  syncModelUI(currentModel);
+
+  </script>
+</body>
+</html>

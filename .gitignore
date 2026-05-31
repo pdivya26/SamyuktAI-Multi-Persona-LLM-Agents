@@ -1,0 +1,18 @@
+# Environment
+.env
+
+# Trained Models (large binary files)
+Trained Models/legal_model/
+Trained Models/openllama-7b-medquad-qlora/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+SamyuktAI Web Interface/users.db
