@@ -16,3 +16,6 @@ __pycache__/
 
 # Database
 SamyuktAI Web Interface/users.db
+
+# Extras
+SamyuktAI Web Interface/static/style1.css
