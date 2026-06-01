@@ -105,9 +105,10 @@ SamyuktAI-Multi-Persona LLM Agents/
 
 ## Implementation Screenshots
 
-<img width="1600" height="756" alt="SamyuktAI Home Page" src="https://github.com/user-attachments/assets/e67fe3a4-3ca9-4fd4-a6b0-8b5563b0bae2" />
-<img width="1600" height="756" alt="SamyuktAI Medical Model" src="https://github.com/user-attachments/assets/db9f1aad-8ebc-416b-bd25-725b7ddb2906" />
-<img width="1600" height="757" alt="SamyuktAI Legal Model" src="https://github.com/user-attachments/assets/bbeb0bbe-2439-46fe-a799-caba7e1eb595" />
+<img width="1919" height="866" alt="SamyuktAI Medical Model I" src="https://github.com/user-attachments/assets/4481b156-dc89-441a-8b05-a665b9cf4526" />
+<img width="1916" height="865" alt="SamyuktAI Medical Model II" src="https://github.com/user-attachments/assets/f4da00db-b7c8-4acd-b4cd-def5b250981f" />
+<img width="1919" height="862" alt="SamyuktAI Legal Model I" src="https://github.com/user-attachments/assets/e4eeb968-2c11-47fb-971e-24fb8afcb703" />
+<img width="1919" height="862" alt="SamyuktAI Legal Model II" src="https://github.com/user-attachments/assets/55eebdae-e59e-456e-b446-73861d70040d" />
 
 ## Limitations
 
