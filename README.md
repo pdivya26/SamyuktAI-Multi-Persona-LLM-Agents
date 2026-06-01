@@ -103,6 +103,12 @@ SamyuktAI-Multi-Persona LLM Agents/
 └── README.md
 ```
 
+## Implementation Screenshots
+
+<img width="1600" height="756" alt="SamyuktAI Home Page" src="https://github.com/user-attachments/assets/e67fe3a4-3ca9-4fd4-a6b0-8b5563b0bae2" />
+<img width="1600" height="756" alt="SamyuktAI Medical Model" src="https://github.com/user-attachments/assets/db9f1aad-8ebc-416b-bd25-725b7ddb2906" />
+<img width="1600" height="757" alt="SamyuktAI Legal Model" src="https://github.com/user-attachments/assets/bbeb0bbe-2439-46fe-a799-caba7e1eb595" />
+
 ## Limitations
 
 - Currently supports two domains (Healthcare and Legal); expanding requires new domain-specific data and fine-tuning
