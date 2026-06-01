@@ -117,6 +117,7 @@ SamyuktAI-Multi-Persona LLM Agents/
 - Multi-domain queries (e.g., medical insurance policies) are not natively handled
 - No formal uncertainty estimation or confidence scoring
 - Inference speed on the healthcare agent is hardware-dependent due to 7B model size
+- Domain-specific agents may occasionally generate factually inaccurate, incomplete, or hallucinated responses due to limitations of fine-tuned language models and training data coverage.
 
 ## Future Work
 
