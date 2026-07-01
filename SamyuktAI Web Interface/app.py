@@ -107,7 +107,7 @@ def chat():
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert Indian legal assistant. Provide brief legal explanations (not too long, not short) and mention IPC sections when relevant."
+                        "content": "You are an expert Indian legal assistant. Provide brief legal explanations (not too long, not short) in textual format and mention IPC sections when relevant."
                     },
                     {
                         "role": "user",
